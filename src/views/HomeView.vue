@@ -1,8 +1,8 @@
 <template>
   <div class="home">
     <section class="hero">
-      <h2>¡Hola! Soy [Tu Nombre]</h2>
-      <p>Desarrollador Web Frontend</p>
+      <h2>¡Hola! Soy Alan Rodriguez</h2>
+      <p>Desarrollador Full Stak</p>
       <button class="cta-button">Ver mis proyectos</button>
     </section>
     

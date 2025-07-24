@@ -363,7 +363,13 @@
     />
   </div>
 </template>
-
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HFVJ8Z90J4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-HFVJ8Z90J4');
+  </script>
 <script>
 import ContactForm from './components/ContactForm.vue'
 
@@ -583,6 +589,16 @@ export default {
           featured: true
         },
         {
+  id: 'reloj-mundial',
+  title: 'Reloj Mundial',
+  description: 'Aplicación web que muestra la hora actual de múltiples países y ciudades del mundo. Interfaz intuitiva con diferentes zonas horarias actualizadas en tiempo real.',
+  tech: ['HTML5', 'CSS3', 'JavaScript', 'Date API', 'Responsive Design'],
+  image: '/images/reloj-mundial.PNG', // Necesitarás agregar esta imagen
+  path: 'https://reloj-mundial-app.vercel.app/', // Tu dominio de Vercel
+  category: 'Frontend',
+  featured: true // Para que aparezca en la sección principal
+},
+        {
           id: 'calculadora',
           title: 'Calculadora Avanzada',
           description: 'Calculadora web con funciones básicas y avanzadas. Interfaz intuitiva y diseño responsive.',
@@ -708,5 +724,6 @@ export default {
   }
 }
 </script>
+
 
 <style src="@/assets/css/main.css"></style>
