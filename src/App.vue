@@ -738,14 +738,14 @@ export default {
       // Crear el script de Google Analytics
       const script1 = document.createElement('script');
       script1.async = true;
-      script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-HFVJ8Z90J4';
+      script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-K1LXZEXCEQ';
       document.head.appendChild(script1);
       
       // Configurar Google Analytics
       window.dataLayer = window.dataLayer || [];
       function gtag(){window.dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-HFVJ8Z90J4');
+      gtag('config', 'G-K1LXZEXCEQ');
       
       // Hacer gtag disponible globalmente
       window.gtag = gtag;
