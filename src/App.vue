@@ -363,13 +363,6 @@
     />
   </div>
 </template>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HFVJ8Z90J4"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-HFVJ8Z90J4');
-  </script>
 <script>
 import ContactForm from './components/ContactForm.vue'
 
@@ -576,7 +569,7 @@ export default {
         }
       ],
       
-      // Proyectos
+      // Proyectos con tu reloj mundial agregado
       projects: [
         {
           id: 'portfolio-terminal',
@@ -589,15 +582,15 @@ export default {
           featured: true
         },
         {
-  id: 'reloj-mundial',
-  title: 'Reloj Mundial',
-  description: 'Aplicación web que muestra la hora actual de múltiples países y ciudades del mundo. Interfaz intuitiva con diferentes zonas horarias actualizadas en tiempo real.',
-  tech: ['HTML5', 'CSS3', 'JavaScript', 'Date API', 'Responsive Design'],
-  image: '/images/reloj-mundial.PNG', // Necesitarás agregar esta imagen
-  path: 'https://reloj-mundial-app.vercel.app/', // Tu dominio de Vercel
-  category: 'Frontend',
-  featured: true // Para que aparezca en la sección principal
-},
+          id: 'reloj-mundial',
+          title: 'Reloj Mundial',
+          description: 'Aplicación web que muestra la hora actual de múltiples países y ciudades del mundo. Interfaz intuitiva con diferentes zonas horarias actualizadas en tiempo real.',
+          tech: ['HTML5', 'CSS3', 'JavaScript', 'Date API', 'Responsive Design'],
+          image: '/images/reloj-mundial.PNG',
+          path: 'https://reloj-mundial-app.vercel.app/',
+          category: 'Frontend',
+          featured: true
+        },
         {
           id: 'calculadora',
           title: 'Calculadora Avanzada',
@@ -678,7 +671,8 @@ export default {
         'Best Practices': '✅',
         'Monitoring Tools': '📊',
         'Security Tools': '🔒',
-        'Database Tools': '🗃️'
+        'Database Tools': '🗃️',
+        'Date API': '🕐'
       };
       return icons[tech] || '🔧';
     },
@@ -690,6 +684,14 @@ export default {
       this.isMenuOpen = false
     },
     openProject(project) {
+      // Trackear cuando alguien ve un proyecto
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'project_view', {
+          event_category: 'engagement',
+          event_label: project.title,
+          value: 1
+        });
+      }
       window.open(project.path, '_blank');
     },
     getFeaturedProjects() {
@@ -702,6 +704,14 @@ export default {
       console.log('Mostrar todos los proyectos');
     },
     scrollToContact() {
+      // Trackear cuando alguien va a contacto
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'contact_interest', {
+          event_category: 'engagement',
+          event_label: 'scroll_to_contact',
+          value: 1
+        });
+      }
       document.getElementById('contact').scrollIntoView({ 
         behavior: 'smooth' 
       });
@@ -711,8 +721,34 @@ export default {
       window.open(`mailto:${this.contactInfo.email}`);
     },
     sendWhatsApp() {
+      // Trackear cuando alguien hace clic en WhatsApp
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'whatsapp_click', {
+          event_category: 'conversion',
+          event_label: 'contact_attempt',
+          value: 1
+        });
+      }
       const message = encodeURIComponent(this.contactInfo.whatsappMessage);
       window.open(`https://wa.me/${this.contactInfo.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+    },
+    
+    // Inicializar Google Analytics
+    initGoogleAnalytics() {
+      // Crear el script de Google Analytics
+      const script1 = document.createElement('script');
+      script1.async = true;
+      script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-HFVJ8Z90J4';
+      document.head.appendChild(script1);
+      
+      // Configurar Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){window.dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HFVJ8Z90J4');
+      
+      // Hacer gtag disponible globalmente
+      window.gtag = gtag;
     }
   },
   mounted() {
@@ -720,7 +756,10 @@ export default {
       if (!e.target.closest('.header')) {
         this.isMenuOpen = false
       }
-    })
+    });
+    
+    // Inicializar Google Analytics cuando el componente se monta
+    this.initGoogleAnalytics();
   }
 }
 </script>
