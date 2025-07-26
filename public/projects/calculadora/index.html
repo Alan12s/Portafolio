@@ -1,37 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Digital</title>
+    <title>Calculadora Científica con Graficador</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="calculator">
-        <div class="display">
-            <input type="text" id="result" disabled>
+    <div class="container">
+        <div class="calculator">
+            <div class="display">
+                <div class="history" id="history"></div>
+                <input type="text" id="result" class="result" placeholder="0" readonly>
+            </div>
+            
+            <div class="buttons">
+                <!-- Primera fila -->
+                <button class="btn function" onclick="clearAll()">C</button>
+                <button class="btn function" onclick="clearEntry()">CE</button>
+                <button class="btn function" onclick="deleteLast()">⌫</button>
+                <button class="btn operator" onclick="appendToDisplay('/')">/</button>
+                
+                <!-- Segunda fila -->
+                <button class="btn function" onclick="appendToDisplay('sin(')">sin</button>
+                <button class="btn function" onclick="appendToDisplay('cos(')">cos</button>
+                <button class="btn function" onclick="appendToDisplay('tan(')">tan</button>
+                <button class="btn operator" onclick="appendToDisplay('*')">×</button>
+                
+                <!-- Tercera fila -->
+                <button class="btn function" onclick="appendToDisplay('log(')">log</button>
+                <button class="btn function" onclick="appendToDisplay('ln(')">ln</button>
+                <button class="btn function" onclick="appendToDisplay('sqrt(')">√</button>
+                <button class="btn operator" onclick="appendToDisplay('-')">-</button>
+                
+                <!-- Cuarta fila -->
+                <button class="btn function" onclick="appendToDisplay('pow(')">x^y</button>
+                <button class="btn function" onclick="appendToDisplay('(')">(</button>
+                <button class="btn function" onclick="appendToDisplay(')')">)</button>
+                <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+                
+                <!-- Quinta fila -->
+                <button class="btn number" onclick="appendToDisplay('7')">7</button>
+                <button class="btn number" onclick="appendToDisplay('8')">8</button>
+                <button class="btn number" onclick="appendToDisplay('9')">9</button>
+                <button class="btn function" onclick="appendToDisplay('pi')">π</button>
+                
+                <!-- Sexta fila -->
+                <button class="btn number" onclick="appendToDisplay('4')">4</button>
+                <button class="btn number" onclick="appendToDisplay('5')">5</button>
+                <button class="btn number" onclick="appendToDisplay('6')">6</button>
+                <button class="btn function" onclick="appendToDisplay('e')">e</button>
+                
+                <!-- Séptima fila -->
+                <button class="btn number" onclick="appendToDisplay('1')">1</button>
+                <button class="btn number" onclick="appendToDisplay('2')">2</button>
+                <button class="btn number" onclick="appendToDisplay('3')">3</button>
+                <button class="btn function" onclick="appendToDisplay('x')">x</button>
+                
+                <!-- Octava fila -->
+                <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
+                <button class="btn number" onclick="appendToDisplay('.')">.</button>
+                <button class="btn equals" onclick="calculate()">=</button>
+                
+                <!-- Novena fila - Graficado -->
+                <button class="btn graph" onclick="toggleGraph()">📊 Gráfico</button>
+            </div>
         </div>
-        <div class="buttons">
-            <button onclick="clearScreen()">C</button>
-            <button onclick="deleteLast()">Del</button>
-            <button onclick="appendValue('/')">/</button>
-            <button onclick="appendValue('*')">X</button>
-            <button onclick="appendValue('7')">7</button>
-            <button onclick="appendValue('8')">8</button>
-            <button onclick="appendValue('9')">9</button>
-            <button onclick="appendValue('-')">-</button>
-            <button onclick="appendValue('4')">4</button>
-            <button onclick="appendValue('5')">5</button>
-            <button onclick="appendValue('6')">6</button>
-            <button onclick="appendValue('+')">+</button>
-            <button onclick="appendValue('1')">1</button>
-            <button onclick="appendValue('2')">2</button>
-            <button onclick="appendValue('3')">3</button>
-            <button onclick="calculateResult()">=</button>
-            <button onclick="appendValue('0')" class="zero">0</button>
-            <button onclick="appendValue('.')">.</button>
+        
+        <!-- Panel de graficado -->
+        <div class="graph-panel" id="graphPanel">
+            <div class="graph-controls">
+                <h3>Graficador de Funciones</h3>
+                <div class="input-group">
+                    <label for="functionInput">Función Y = f(x):</label>
+                    <input type="text" id="functionInput" placeholder="Ej: x^2, sin(x), x^3-2*x+1">
+                    <button onclick="plotFunction()">Graficar</button>
+                </div>
+                <div class="range-controls">
+                    <div class="range-group">
+                        <label>Rango X:</label>
+                        <input type="number" id="xMin" value="-10" step="0.1">
+                        <span>a</span>
+                        <input type="number" id="xMax" value="10" step="0.1">
+                    </div>
+                    <div class="range-group">
+                        <label>Rango Y:</label>
+                        <input type="number" id="yMin" value="-10" step="0.1">
+                        <span>a</span>
+                        <input type="number" id="yMax" value="10" step="0.1">
+                    </div>
+                </div>
+                <div class="graph-actions">
+                    <button onclick="clearGraph()">Limpiar</button>
+                    <button onclick="resetZoom()">Reset Zoom</button>
+                </div>
+            </div>
+            <canvas id="graphCanvas" width="800" height="600"></canvas>
         </div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>

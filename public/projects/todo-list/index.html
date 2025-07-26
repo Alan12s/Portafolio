@@ -1,27 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
+    <title>TaskMaster Pro - Todo List Avanzada</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>To-Do List</h1>
-        <div class="input-container">
-            <input type="text" id="todo-input" placeholder="Add a new task...">
+        <header class="header">
+            <h1><i class="fas fa-tasks"></i> TaskMaster Pro</h1>
+            <p>Tu gestor de tareas más avanzado y elegante</p>
+        </header>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Completadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="progressPercentage">0%</div>
+                <div class="stat-label">Progreso</div>
+            </div>
         </div>
-        <div class="input-container">
-            <input type="text" id="description-input" placeholder="Add a description...">
-        </div>
-        <div class="input-container">
-            <input type="datetime-local" id="alarm-input">
-        </div>
-        <button id="add-btn">Add</button>
-        <ul id="todo-list"></ul>
-        <button id="clear-btn">Clear All</button>
+
+        <main class="main-content">
+            <section class="todo-section">
+                <div class="input-section">
+                    <div class="input-container">
+                        <i class="fas fa-plus input-icon"></i>
+                        <input type="text" class="task-input" placeholder="¿Qué necesitas hacer hoy?" id="taskInput">
+                    </div>
+                    
+                    <div class="input-options">
+                        <select class="priority-select" id="prioritySelect">
+                            <option value="low">🟢 Baja prioridad</option>
+                            <option value="medium">🟡 Media prioridad</option>
+                            <option value="high">🔴 Alta prioridad</option>
+                        </select>
+                        
+                        <select class="category-select" id="categorySelect">
+                            <option value="personal">👤 Personal</option>
+                            <option value="trabajo">💼 Trabajo</option>
+                            <option value="hogar">🏠 Hogar</option>
+                            <option value="salud">🏥 Salud</option>
+                            <option value="estudios">📚 Estudios</option>
+                        </select>
+                        
+                        <input type="date" class="due-date" id="dueDate">
+                    </div>
+                    
+                    <button class="add-btn" id="addBtn">
+                        <i class="fas fa-plus"></i> Agregar Tarea
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">Todas</button>
+                    <button class="filter-btn" data-filter="pending">Pendientes</button>
+                    <button class="filter-btn" data-filter="completed">Completadas</button>
+                    <button class="filter-btn" data-filter="high">Alta prioridad</button>
+                    <button class="filter-btn" data-filter="today">Hoy</button>
+                </div>
+
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Buscar tareas..." id="searchInput">
+                </div>
+
+                <div class="todo-list" id="todoList">
+                    <!-- Las tareas se agregan aquí dinámicamente -->
+                </div>
+            </section>
+
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">📊 Progreso General</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p id="progressText">0 de 0 tareas completadas</p>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">📂 Categorías</h3>
+                    <ul class="category-list" id="categoryList">
+                        <li class="category-item active" data-category="all">
+                            <span>📋 Todas</span>
+                            <span id="allCount">0</span>
+                        </li>
+                        <li class="category-item" data-category="personal">
+                            <span>👤 Personal</span>
+                            <span id="personalCount">0</span>
+                        </li>
+                        <li class="category-item" data-category="trabajo">
+                            <span>💼 Trabajo</span>
+                            <span id="trabajoCount">0</span>
+                        </li>
+                        <li class="category-item" data-category="hogar">
+                            <span>🏠 Hogar</span>
+                            <span id="hogarCount">0</span>
+                        </li>
+                        <li class="category-item" data-category="salud">
+                            <span>🏥 Salud</span>
+                            <span id="saludCount">0</span>
+                        </li>
+                        <li class="category-item" data-category="estudios">
+                            <span>📚 Estudios</span>
+                            <span id="estudiosCount">0</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">🎯 Acciones Rápidas</h3>
+                    <button class="add-btn" id="clearCompleted">
+                        <i class="fas fa-trash"></i> Limpiar Completadas
+                    </button>
+                    <button class="add-btn" id="exportTasks" style="margin-top: 0.5rem;">
+                        <i class="fas fa-download"></i> Exportar Tareas
+                    </button>
+                </div>
+            </aside>
+        </main>
     </div>
+
+    <!-- Modal para editar tareas -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">✏️ Editar Tarea</h3>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="input-container">
+                <i class="fas fa-edit input-icon"></i>
+                <input type="text" class="task-input" placeholder="Texto de la tarea" id="editTaskInput">
+            </div>
+            <div class="input-options">
+                <select class="priority-select" id="editPrioritySelect">
+                    <option value="low">🟢 Baja prioridad</option>
+                    <option value="medium">🟡 Media prioridad</option>
+                    <option value="high">🔴 Alta prioridad</option>
+                </select>
+                <select class="category-select" id="editCategorySelect">
+                    <option value="personal">👤 Personal</option>
+                    <option value="trabajo">💼 Trabajo</option>
+                    <option value="hogar">🏠 Hogar</option>
+                    <option value="salud">🏥 Salud</option>
+                    <option value="estudios">📚 Estudios</option>
+                </select>
+                <input type="date" class="due-date" id="editDueDate">
+            </div>
+            <button class="add-btn" id="saveEdit">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+
+    <!-- Botón flotante para agregar tareas rápido -->
+    <button class="floating-btn" id="floatingAdd">
+        <i class="fas fa-plus"></i>
+    </button>
+
     <script src="script.js"></script>
 </body>
 </html>
