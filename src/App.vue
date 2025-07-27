@@ -578,7 +578,7 @@ export default {
         }
       ],
       
-      // Proyectos con tu reloj mundial agregado
+      // Proyectos 
       projects: [
         {
           id: 'portfolio-terminal',
@@ -616,7 +616,7 @@ export default {
           description: 'Aplicación del clima desarrollada en React con API integration. Muestra pronósticos en tiempo real y ubicación actual.',
           tech: ['React', 'JavaScript', 'CSS3', 'Weather API', 'React'],
           image: '/images/weather-app.PNG',
-          path: '/projects/react_weather_app-main/build/index.html',
+          path: 'https://react-weather-app-main-khaki.vercel.app/',
           category: 'React',
           featured: true
         },
