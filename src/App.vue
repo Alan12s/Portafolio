@@ -363,10 +363,10 @@
     />
      <!-- Modal de todos los proyectos -->
     <AllProjects 
-      v-if="showAllProjects"
-      @close="showAllProjects = false"
-      :projects="projects"
-    />
+  v-if="showAllProjectsModal"
+  @close="showAllProjectsModal = false"
+  :projects="projects"
+/>
   </div>
 </template>
 <script>
@@ -382,7 +382,7 @@ export default {
   data() {
     return {
       isMenuOpen: false,
-      showAllProjects: false,
+       showAllProjectsModal: false,
       
       // Servicios mejorados
       services: [
@@ -718,7 +718,7 @@ export default {
         value: 1
       });
     }
-    this.showAllProjects = true;
+    this.showAllProjectsModal = true; // Cambiar aquí
   },
     scrollToContact() {
       // Trackear cuando alguien va a contacto
