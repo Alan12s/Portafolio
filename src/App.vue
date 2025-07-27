@@ -361,19 +361,28 @@
       @close="showContactForm = false"
       :recipientEmail="contactInfo.email"
     />
+     <!-- Modal de todos los proyectos -->
+    <AllProjects 
+      v-if="showAllProjects"
+      @close="showAllProjects = false"
+      :projects="projects"
+    />
   </div>
 </template>
 <script>
 import ContactForm from './components/ContactForm.vue'
+import AllProjects from './components/AllProjects.vue'  // AGREGAR ESTA LÍNEA
 
 export default {
   name: 'App',
   components: {
-    ContactForm
+    ContactForm,
+    AllProjects
   },
   data() {
     return {
       isMenuOpen: false,
+      showAllProjects: false,
       
       // Servicios mejorados
       services: [
@@ -597,7 +606,7 @@ export default {
           description: 'Calculadora web con funciones básicas y avanzadas. Interfaz intuitiva y diseño responsive.',
           tech: ['HTML5', 'CSS3', 'JavaScript'],
           image: '/images/calculadora.PNG',
-          path: '/projects/calculadora/index.html',
+          path: 'https://react-weather-app-main-khaki.vercel.app/',
           category: 'Frontend',
           featured: true
         },
@@ -701,8 +710,16 @@ export default {
       event.target.src = '/images/placeholder.jpg';
     },
     showAllProjects() {
-      console.log('Mostrar todos los proyectos');
-    },
+    // Trackear cuando alguien quiere ver todos los proyectos
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'view_all_projects', {
+        event_category: 'engagement',
+        event_label: 'projects_modal_open',
+        value: 1
+      });
+    }
+    this.showAllProjects = true;
+  },
     scrollToContact() {
       // Trackear cuando alguien va a contacto
       if (typeof gtag !== 'undefined') {
