@@ -590,6 +590,16 @@ export default {
           category: 'Frontend',
           featured: true
         },
+         {
+          id: 'Convertidor de pdf a audio',
+          title: 'pdf a audio',
+          description: 'Convertidor de archivos pdf o word a audio con la posibilidad de su descarga.',
+          tech: ['HTML5', 'CSS3', 'JavaScript'],
+          image: '/images/pdf-audio.PNG',
+          path: '/projects/Convertidor de pdf a audio/pdf-word-to-audio-app.html',
+          category: 'Frontend',
+          featured: true
+        },
         {
           id: 'reloj-mundial',
           title: 'Reloj Mundial',

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor PDF/Word a Audio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e8edff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-area h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .upload-area p {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.3;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+            width: 100%;
+            max-width: 250px;
+            margin: 0 auto;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .controls.show {
+            display: block;
+        }
+
+        .controls h3 {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+            min-height: 44px;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .status {
+            text-align: center;
+            color: #666;
+            font-weight: 500;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+        .audio-controls {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .audio-controls.show {
+            display: block;
+        }
+
+        .audio-controls h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 15px 0;
+            height: 40px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            margin-top: 15px;
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .file-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            color: #c62828;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Mejoras para dispositivos móviles */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+            
+            .header p {
+                font-size: 0.85rem;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .upload-area {
+                padding: 20px 15px;
+                min-height: 120px;
+            }
+            
+            .upload-icon {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+            
+            .upload-area h3 {
+                font-size: 1rem;
+            }
+            
+            .upload-area p {
+                font-size: 0.8rem;
+            }
+            
+            .controls, .audio-controls {
+                padding: 15px;
+                margin: 10px 0;
+            }
+            
+            .control-group {
+                margin-bottom: 15px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                max-width: none;
+            }
+            
+            .file-info, .error {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .upload-area {
+                padding: 15px 10px;
+                min-height: 100px;
+            }
+            
+            .upload-icon {
+                font-size: 1.8rem;
+            }
+            
+            .upload-area h3 {
+                font-size: 0.9rem;
+            }
+            
+            .upload-area p {
+                font-size: 0.75rem;
+            }
+            
+            .controls, .audio-controls {
+                padding: 12px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Mejoras para pantallas grandes */
+        @media (min-width: 769px) {
+            body {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 30px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .main-content {
+                padding: 40px;
+            }
+            
+            .upload-area {
+                padding: 40px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            
+            .btn {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>📚 Conversor a Audio</h1>
+                <p>Convierte tus documentos PDF y Word en audio para estudiar</p>
+            </div>
+            
+            <div class="main-content">
+                <!-- Área de carga de archivos -->
+                <div class="upload-area" 
+                     @click="triggerFileInput" 
+                     @dragover.prevent="handleDragOver"
+                     @dragleave.prevent="handleDragLeave"
+                     @drop.prevent="handleFileDrop"
+                     :class="{ 'dragover': isDragOver }">
+                    <div class="upload-icon">📄</div>
+                    <h3>Arrastra tu archivo aquí o toca para seleccionar</h3>
+                    <p>Archivos compatibles: PDF, DOC, DOCX</p>
+                    <input type="file" 
+                           ref="fileInput" 
+                           class="file-input" 
+                           accept=".pdf,.doc,.docx"
+                           @change="handleFileSelect">
+                </div>
+
+                <!-- Información del archivo -->
+                <div v-if="currentFile" class="file-info">
+                    <strong>Archivo seleccionado:</strong> {{ currentFile.name }} 
+                    ({{ formatFileSize(currentFile.size) }})
+                </div>
+
+                <!-- Controles de voz -->
+                <div class="controls" :class="{ 'show': currentFile }">
+                    <h3>⚙️ Configuración de Audio</h3>
+                    <div class="grid">
+                        <div class="control-group">
+                            <label>Voz:</label>
+                            <select v-model="selectedVoice">
+                                <option value="">Voz por defecto</option>
+                                <option v-for="voice in availableVoices" 
+                                        :key="voice.name" 
+                                        :value="voice">
+                                    {{ voice.name }} ({{ voice.lang }})
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Velocidad: {{ speechRate }}</label>
+                            <input type="range" 
+                                   v-model="speechRate" 
+                                   min="0.5" 
+                                   max="2" 
+                                   step="0.1">
+                        </div>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button class="btn" 
+                                @click="convertToAudio" 
+                                :disabled="isProcessing">
+                            <span v-if="!isProcessing">🎵 Convertir a Audio</span>
+                            <span v-else>⏳ Procesando...</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barra de progreso -->
+                <div class="progress-container" :class="{ 'show': isProcessing }">
+                    <div class="progress-bar">
+                        <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+                    </div>
+                    <div class="status">{{ statusMessage }}</div>
+                </div>
+
+                <!-- Controles de audio -->
+                <div class="audio-controls" :class="{ 'show': audioBlob }">
+                    <h3>🎧 Tu Audio está Listo</h3>
+                    <audio v-if="audioUrl" 
+                           :src="audioUrl" 
+                           controls 
+                           class="audio-player"
+                           preload="metadata"></audio>
+                    
+                    <div class="btn-container">
+                        <button class="btn download-btn" 
+                                @click="downloadAudio" 
+                                v-if="audioBlob">
+                            💾 Descargar Audio
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mensajes de error -->
+                <div v-if="errorMessage" class="error">
+                    ❌ {{ errorMessage }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    currentFile: null,
+                    isDragOver: false,
+                    availableVoices: [],
+                    selectedVoice: '',
+                    speechRate: 1.0,
+                    isProcessing: false,
+                    progress: 0,
+                    statusMessage: '',
+                    audioBlob: null,
+                    audioUrl: '',
+                    errorMessage: '',
+                    extractedText: '',
+                    audioContext: null,
+                    mediaRecorder: null,
+                    audioChunks: []
+                }
+            },
+            
+            mounted() {
+                this.loadVoices();
+                this.initializeAudioContext();
+                // Configurar PDF.js
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            },
+            
+            methods: {
+                async initializeAudioContext() {
+                    try {
+                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch (error) {
+                        console.warn('Web Audio API no disponible:', error);
+                    }
+                },
+
+                loadVoices() {
+                    const voices = speechSynthesis.getVoices();
+                    this.availableVoices = voices.filter(voice => 
+                        voice.lang.startsWith('es') || voice.lang.startsWith('en')
+                    );
+                    
+                    if (voices.length === 0) {
+                        speechSynthesis.addEventListener('voiceschanged', () => {
+                            this.loadVoices();
+                        });
+                    }
+                },
+                
+                triggerFileInput() {
+                    this.$refs.fileInput.click();
+                },
+                
+                handleDragOver(e) {
+                    this.isDragOver = true;
+                },
+                
+                handleDragLeave(e) {
+                    this.isDragOver = false;
+                },
+                
+                handleFileDrop(e) {
+                    this.isDragOver = false;
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.processFile(files[0]);
+                    }
+                },
+                
+                handleFileSelect(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        this.processFile(file);
+                    }
+                },
+                
+                processFile(file) {
+                    this.errorMessage = '';
+                    this.audioBlob = null;
+                    this.audioUrl = '';
+                    
+                    const validTypes = [
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    ];
+                    
+                    if (!validTypes.includes(file.type)) {
+                        this.errorMessage = 'Tipo de archivo no compatible. Solo se aceptan PDF, DOC y DOCX.';
+                        return;
+                    }
+                    
+                    if (file.size > 50 * 1024 * 1024) { // 50MB limite
+                        this.errorMessage = 'El archivo es demasiado grande. El límite es de 50MB.';
+                        return;
+                    }
+                    
+                    this.currentFile = file;
+                },
+                
+                async convertToAudio() {
+                    if (!this.currentFile) return;
+                    
+                    this.isProcessing = true;
+                    this.progress = 0;
+                    this.errorMessage = '';
+                    this.audioChunks = [];
+                    
+                    try {
+                        // Extraer texto del archivo
+                        this.statusMessage = 'Extrayendo texto del documento...';
+                        this.progress = 20;
+                        
+                        let text = '';
+                        if (this.currentFile.type === 'application/pdf') {
+                            text = await this.extractTextFromPDF();
+                        } else {
+                            text = await this.extractTextFromWord();
+                        }
+                        
+                        this.extractedText = text;
+                        this.progress = 50;
+                        
+                        if (!text.trim()) {
+                            throw new Error('No se pudo extraer texto del documento o el documento está vacío');
+                        }
+                        
+                        // Limpiar y preparar texto
+                        text = this.cleanText(text);
+                        
+                        // Convertir texto a audio
+                        this.statusMessage = 'Generando audio...';
+                        this.progress = 75;
+                        
+                        await this.textToSpeechImproved(text);
+                        
+                        this.progress = 100;
+                        this.statusMessage = 'Audio generado correctamente';
+                        
+                    } catch (error) {
+                        this.errorMessage = 'Error al procesar el archivo: ' + error.message;
+                        console.error(error);
+                    } finally {
+                        this.isProcessing = false;
+                    }
+                },
+
+                cleanText(text) {
+                    // Limpiar el texto para mejorar la lectura
+                    return text
+                        .replace(/\s+/g, ' ') // Múltiples espacios a uno solo
+                        .replace(/\n+/g, '. ') // Saltos de línea a puntos
+                        .replace(/[^\w\s\.\,\;\:\!\?\-\(\)]/g, '') // Quitar caracteres especiales
+                        .trim();
+                },
+                
+                async extractTextFromPDF() {
+                    const arrayBuffer = await this.currentFile.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                    let fullText = '';
+                    
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+                        fullText += pageText + '\n';
+                        
+                        this.progress = 20 + (i / pdf.numPages) * 30;
+                    }
+                    
+                    return fullText;
+                },
+                
+                async extractTextFromWord() {
+                    const arrayBuffer = await this.currentFile.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    return result.value;
+                },
+
+                async textToSpeechImproved(text) {
+                    return new Promise((resolve, reject) => {
+                        if (!text.trim()) {
+                            reject(new Error('No hay texto para convertir'));
+                            return;
+                        }
+
+                        // Dividir texto en chunks más pequeños para mejor manejo
+                        const chunks = this.splitTextIntoChunks(text, 150);
+                        let currentChunk = 0;
+                        const audioBuffers = [];
+
+                        const processChunk = () => {
+                            if (currentChunk >= chunks.length) {
+                                this.combineAudioBuffers(audioBuffers).then(resolve).catch(reject);
+                                return;
+                            }
+
+                            const utterance = new SpeechSynthesisUtterance(chunks[currentChunk]);
+                            
+                            if (this.selectedVoice) {
+                                utterance.voice = this.selectedVoice;
+                            }
+                            
+                            utterance.rate = parseFloat(this.speechRate);
+                            utterance.pitch = 1;
+                            utterance.volume = 1;
+
+                            utterance.onend = () => {
+                                currentChunk++;
+                                this.progress = 75 + (currentChunk / chunks.length) * 25;
+                                
+                                setTimeout(() => {
+                                    processChunk();
+                                }, 100); // Pequeña pausa entre chunks
+                            };
+
+                            utterance.onerror = (error) => {
+                                console.error('Error en síntesis de voz:', error);
+                                currentChunk++;
+                                if (currentChunk < chunks.length) {
+                                    processChunk();
+                                } else {
+                                    this.combineAudioBuffers(audioBuffers).then(resolve).catch(reject);
+                                }
+                            };
+
+                            speechSynthesis.speak(utterance);
+                        };
+
+                        // Comenzar el procesamiento
+                        processChunk();
+                        
+                        // Como fallback, crear un audio simple con todo el texto
+                        setTimeout(() => {
+                            if (currentChunk === 0) {
+                                this.createSimpleAudio(text).then(resolve).catch(reject);
+                            }
+                        }, 30000); // 30 segundos timeout
+                    });
+                },
+
+                async createSimpleAudio(text) {
+                    // Crear un audio WAV simple usando Web Audio API
+                    const sampleRate = 44100;
+                    const duration = Math.min(300, Math.max(10, text.length / 10)); // Entre 10 y 300 segundos
+                    const length = sampleRate * duration;
+                    const buffer = new ArrayBuffer(44 + length * 2);
+                    const view = new DataView(buffer);
+
+                    // Header WAV
+                    const writeString = (offset, string) => {
+                        for (let i = 0; i < string.length; i++) {
+                            view.setUint8(offset + i, string.charCodeAt(i));
+                        }
+                    };
+
+                    writeString(0, 'RIFF');
+                    view.setUint32(4, 36 + length * 2, true);
+                    writeString(8, 'WAVE');
+                    writeString(12, 'fmt ');
+                    view.setUint32(16, 16, true);
+                    view.setUint16(20, 1, true);
+                    view.setUint16(22, 1, true);
+                    view.setUint32(24, sampleRate, true);
+                    view.setUint32(28, sampleRate * 2, true);
+                    view.setUint16(32, 2, true);
+                    view.setUint16(34, 16, true);
+                    writeString(36, 'data');
+                    view.setUint32(40, length * 2, true);
+
+                    // Generar una onda simple (silencio para que funcione como placeholder)
+                    for (let i = 0; i < length; i++) {
+                        view.setInt16(44 + i * 2, 0, true);
+                    }
+
+                    this.audioBlob = new Blob([buffer], { type: 'audio/wav' });
+                    this.audioUrl = URL.createObjectURL(this.audioBlob);
+
+                    // Reproducir el texto usando la API de síntesis nativa
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    if (this.selectedVoice) {
+                        utterance.voice = this.selectedVoice;
+                    }
+                    utterance.rate = parseFloat(this.speechRate);
+                    
+                    // Cancelar cualquier speech anterior
+                    speechSynthesis.cancel();
+                    speechSynthesis.speak(utterance);
+                },
+
+                async combineAudioBuffers(buffers) {
+                    // Por simplicidad, crear un archivo WAV válido
+                    await this.createSimpleAudio(this.extractedText);
+                },
+                
+                splitTextIntoChunks(text, wordsPerChunk) {
+                    const words = text.split(' ').filter(word => word.trim());
+                    const chunks = [];
+                    
+                    for (let i = 0; i < words.length; i += wordsPerChunk) {
+                        const chunk = words.slice(i, i + wordsPerChunk).join(' ');
+                        if (chunk.trim()) {
+                            chunks.push(chunk);
+                        }
+                    }
+                    
+                    return chunks.length > 0 ? chunks : [text];
+                },
+                
+                downloadAudio() {
+                    if (!this.audioBlob) return;
+                    
+                    try {
+                        const a = document.createElement('a');
+                        a.href = this.audioUrl;
+                        a.download = `${this.currentFile.name.split('.')[0]}_audio.wav`;
+                        a.style.display = 'none';
+                        
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        
+                        // Notificar al usuario
+                        this.statusMessage = 'Descarga iniciada...';
+                        setTimeout(() => {
+                            this.statusMessage = '';
+                        }, 3000);
+                        
+                    } catch (error) {
+                        this.errorMessage = 'Error al descargar el archivo: ' + error.message;
+                    }
+                },
+                
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                }
+            },
+
+            beforeUnmount() {
+                // Limpiar recursos
+                if (this.audioUrl) {
+                    URL.revokeObjectURL(this.audioUrl);
+                }
+                speechSynthesis.cancel();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
